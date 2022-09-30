@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="jp">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Type-Game</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+</head>
+<body>
+    <div id="app" class="container">
+        <div class="title">
+            <h1>OP Quize</h1>
+            <div class="marker"></div>
+        </div>
+        <!-- 初期表示 -->
+        <button v-if="startFlg != true" class="start-botton mb-20" @click="gameStart">START</button>
+        <!-- end/初期表示 -->
+
+        <!-- ゲームスタート後 -->
+        <div v-if="startFlg">
+            <!-- 問題提示 -->
+            <div v-if="answerFlg != true">
+                <div class="question mb-20">第{{ current_question_number }}問</div>
+                <p>OPの大きさを大文字アルファベットで答えてね</p>
+                <div v-bind:style="styleImage" class="question-img mb-20"></div>
+                <div v-if="checkFlg != true">
+                    <p>見る目ないですね</p>
+                </div>
+                <div class="type-form-wrapper mb-20">
+                    <input id="type-form" v-model="typeBox" type="text" class="type-form">
+                </div>
+                <button class="answer-botton mb-20" @click="checkAnswer">Answer</button>
+            </div>
+            <!-- end/問題提示 -->
+
+            <!-- 答え表示 -->
+            <div v-if="answerFlg">
+                <div v-if="currnt_question_counts == question_counts" class="clear">
+                    <p>全問正解！</p>
+                </div>
+                <div v-if="currnt_question_counts != question_counts" class="clear">
+                    <p>正解</p>
+                    <button class="next-botton mb-20" @click="moveNext">Next</button>
+                </div>
+                <div class="question mb-20">答えは、{{ current_question_answer }}カップ</div>
+                <div class="question mb-20">{{ current_question_discription }}</div>
+                <div class="image-wrapper">
+                    <div v-bind:style="styleImage" class="question-img mb-20"></div>
+                </div>
+            </div>
+            <!-- end/答え表示 -->
+
+            <div class="guage-wrapper mb-20">
+                <div v-bind:style="styleObject"class="guage"></div>
+            </div>
+            <div>{{ currnt_question_counts }}/{{ question_counts }}</div>
+        </div>
+        <!-- end/ゲームスタート後 -->
+        
+    </div>
+    <script>
+        new Vue({
+            el:"#app",
+            data:{
+                startFlg:"",
+                answerFlg:false,
+                checkFlg:true,
+                current_question_number:"",
+                current_question_image:"",
+                current_question_answer:"",
+                questions:[
+                    {
+                    number: "1",
+                    image: "001",
+                    discription: "これは分かって当然ですね",
+                    answer: "E"
+                    },
+                    {
+                    number: "2",
+                    image: "002",
+                    discription: "重力によって、大きく見せてますね",
+                    answer: "D"
+                    },
+                    {
+                    number: "3",
+                    image: "003",
+                    discription: "ちょい難しかったかな",
+                    answer: "G"
+                    }
+                ],
+                typeBox:"",
+                currnt_question_counts:0,
+                question_counts:0
+            },
+            computed:{
+                styleObject:function(){
+                    width = 33 * this.currnt_question_counts + "%"
+                    image = "url(assets/img/" + this.current_question + ".jpeg)"
+                    if(this.currnt_question_counts == 5){
+                        color = "#03a9f4"
+                    }else{
+                        color = "orange"
+                    }
+                    return{
+                   'width':width,
+                   'background-color':color
+                    }
+                },
+                styleImage:function(){
+                    image = "url(assets/img/" + this.current_question_image + ".jpeg)"
+                    return{
+                   'background-image':image
+                    }
+                },
+
+            },
+            methods:{
+                gameStart:function(){
+                    this.startFlg = true;
+                    this.$nextTick(function(){
+                        document.getElementById('type-form').focus()
+                    })
+                },
+                checkAnswer:function(){
+                    if(this.typeBox == this.current_question_answer){
+                        this.answerFlg = true;
+                        this.checkFlg = true;
+                    } else {
+                        this.checkFlg = false;
+                    }
+                },
+                moveNext:function(){
+                    this.answerFlg = false;
+                    this.currnt_question_counts++
+                    this.current_question = this.questions[this.currnt_question_counts]
+                    this.current_question_number = this.current_question.number
+                    this.current_question_image = this.current_question.image
+                    this.current_question_answer = this.current_question.answer
+                    this.current_question_discription = this.current_question.discription
+                    this.typeBox = ""
+                }
+
+            },
+            mounted:function(){
+                this.current_question = this.questions[this.currnt_question_counts]
+                this.current_question_number = this.current_question.number
+                this.current_question_image = this.current_question.image
+                this.current_question_discription = this.current_question.discription
+                this.current_question_answer = this.current_question.answer
+                this.question_counts = this.questions.length
+            },
+            watch:{
+                // typeBox:function(e){
+                //     if(e == this.current_question_answer){
+                //         this.currnt_question_counts++
+                //         this.current_question = this.questions[this.currnt_question_counts]
+                //         this.current_question_number = this.current_question.number
+                //         this.current_question_image = this.current_question.image
+                //         this.current_question_answer = this.current_question.answer
+                //         this.current_question_answer = this.current_question.discription
+                //         this.typeBox = ""
+                //     }
+                // }
+            }
+        })
+    </script>
+</body>
+</html>
